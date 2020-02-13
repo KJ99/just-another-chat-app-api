@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <% if(success) { %>
+        <p>account activated</p>
+    <% } else if(error) { %>
+        <% if(error.internalCode == 10001) { %>
+            <p>user already verified</p>
+        <% } else if(error.internalCode == 10002) { %>
+            <p>user not found</p>
+        <% } else { %>
+            <p>unknown error</p>
+        <% } %>
+    <% } else { %>
+        <p>unknown error</p>
+    <% } %>
+</body>
+</html>

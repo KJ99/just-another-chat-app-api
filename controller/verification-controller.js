@@ -1,6 +1,7 @@
 const app = require('express')()
 const defaultError = require('../errors').unknown
 const ActivationService = require('../utility/activation-service')
+const ErrorResolver = require('../utility/error-resolver')
 
 app.set('view engine', 'ejs');
 

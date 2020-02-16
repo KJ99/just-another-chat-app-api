@@ -1,4 +1,10 @@
-const Moment = require('moment')
+const crypto = require('crypto')
+const randomString = require('randomstring')
+const md5 = require('md5')
 
-const time = new Moment(1581266722000)
-console.log(time.format('YYYY-MM-DD HH:mm:ss'))
+const s = randomString.generate(4096)
+
+const data = randomString.generate(8192)
+
+const secret = crypto.createHmac('sha256', s).update(data).digest('hex')
+console.log(secret)

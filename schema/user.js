@@ -70,7 +70,19 @@ const User = new mongoose.Schema({
         unique: true
     },
 
-    devices: {type: Array}
+    devices: {type: Array},
+
+    connectionToken: {
+        type: String,
+        sparse: true,
+        default: null
+    },
+
+    friends: {
+        type: [mongoose.Types.ObjectId],
+        required: true,
+        default: []
+    }
 })
 
 module.exports = mongoose.model('User', User)

@@ -28,5 +28,9 @@ module.exports = {
         ACCOUNT_INACTIVE: {code: 403, internalCode: 10026, message: 'account is not active'},
         ACCOUNT_NOT_VERIFIED: {code: 403, internalCode: 10027, message: 'account is not verified'},
         UNKNOWN: unknownError
+    },
+    user: {
+        USER_NOT_FOUND: {code: 403, internalCode: 10030, message: 'user not found'},
+        UNKNOWN: unknownError
     }
 }

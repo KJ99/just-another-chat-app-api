@@ -1,19 +1,30 @@
 const app = require('express')()
-const bodyParser = require('body-parser')
 const AuthService = require('../utility/authentication-service')
-const defaultError = require('../errors').unknown
+const UserService = require('../utility/user-service')
 const ErrorResolver = require('../utility/error-resolver')
 
-app.use(bodyParser.json());
+app.use((req, res, next) => {
+    AuthService.authenticate(req)
+    .then(() => next())
+    .catch(e => {
+        let responseData = ErrorResolver.resolveError(e)
+        res.contentType('application/json')
+        res.status(responseData.status)
+        res.end(JSON.stringify(responseData.body))
+    })
+})
 
-app.post('/login', (req, res) => {
+app.get('/connection/new', (req, res) => {
     let status = 500
     let body = {}
     const contentType = 'application/json'
-    AuthService.login(req)
-    .then(token => {
+    AuthService.getUser(req)
+    .then(user => {
+        return UserService.generateConnectionLink(user)
+    })
+    .then(link => {
         status = 200
-        body = token
+        body = {link: link}
     })
     .catch(e => {
         const responseData = ErrorResolver.resolveError(e)
@@ -27,15 +38,17 @@ app.post('/login', (req, res) => {
     })
 })
 
-//temporary
-app.get('/testaroo', (req, res) => {
+app.get('/connection/cancel', (req, res) => {
     let status = 500
     let body = {}
     const contentType = 'application/json'
-    AuthService.authenticate(req)
+    AuthService.getUser(req)
+    .then(user => {
+        return UserService.removeConnectionLink(user)
+    })
     .then(() => {
         status = 200
-        body = {result: 'success'}
+        body = {status: 'success'}
     })
     .catch(e => {
         const responseData = ErrorResolver.resolveError(e)
@@ -49,14 +62,17 @@ app.get('/testaroo', (req, res) => {
     })
 })
 
-app.post('/refresh', (req, res) => {
+app.get('/connect/:token', (req, res) => {
     let status = 500
     let body = {}
     const contentType = 'application/json'
-    AuthService.refreshToken(req)
-    .then(token => {
+    AuthService.getUser(req)
+    .then(user => {
+        return UserService.connect(user, req.params.token)
+    })
+    .then(() => {
         status = 200
-        body = token
+        body = {status: 'success'}
     })
     .catch(e => {
         const responseData = ErrorResolver.resolveError(e)

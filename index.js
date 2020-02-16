@@ -2,11 +2,12 @@ require('dotenv').config({path: __dirname + '/.env'})
 const app = require('express')()
 const http = require('http')
 const database = require('./db')
-const WebSocket = require('websocket')
+const WebSocket = require('websocket').server
 
 const RegistrationController = require('./controller/registration-controller')
 const VerificationController = require('./controller/verification-controller')
 const AuthController = require('./controller/authentication-controller')
+const UserController = require('./controller/user-controller')
 
 const serverPort = process.env.NODE_PORT || 8080
 const webSocketPort = process.env.WEB_SOCKET_PORT || 3000
@@ -14,13 +15,20 @@ const webSocketPort = process.env.WEB_SOCKET_PORT || 3000
 app.use('/register', RegistrationController)
 app.use('/verify', VerificationController)
 app.use('/auth', AuthController)
+app.use('/user', UserController)
 
-app.get('/dupa', (req, res) => {
-    require('./schema/user').find({})
+app.get('/dupa/:user', (req, res) => {
+    require('./schema/user').findOne({username: req.params.user})
     .then(data => {
         res.status(200);
         res.contentType('json')
-        res.end(JSON.stringify(data))
+        res.end(JSON.stringify({
+            id: data._id,
+            username: data.username,
+            activationToken: data.activationToken,
+            connectionToken: data.connectionToken,
+            friends: data.friends
+        }))
     })
     .catch(e => {
         res.status(500);
@@ -30,8 +38,8 @@ app.get('/dupa', (req, res) => {
 
 })
 
-const server = http.createServer(app)
-const webSocketServer = new WebSocket.Server({ server })
+const server = http.createServer((req, res) => {})
+const webSocketServer = new WebSocket({ httpServer: server })
 
 webSocketServer.on('connection', (ws) => {
     ws.on('message', message => {
@@ -45,7 +53,7 @@ database.connect()
 .then(() => {
     console.log('connected')
     console.log('starting a server')
-    const server = app.listen(serverPort, () => console.log(`Server is running on port ${serverPort}`))
+    app.listen(serverPort, () => console.log(`Server is running on port ${serverPort}`))
 
 })
 .catch(e => console.log(e))

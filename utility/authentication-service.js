@@ -155,6 +155,31 @@ const authenticate = (request) => {
     })
 }
 
+const getUser = request => {
+    return new Promise((resolve, reject) => {
+        const token = unpackToken(request)
+        if(token == null) {
+            throw errors.TOKEN_NOT_FOUND
+        }
+        const decoded = jwt.decode(token)
+        User.findById(decoded.user)
+        .then(user => {
+            if(user == null) {
+                throw errors.USER_NOT_FOUND
+            } else {
+                resolve(user)
+            }
+        })
+        .catch(e => {
+            if(typeof e == 'object' && typeof e.code == 'number' && typeof e.internalCode == 'number') {
+                reject(e)
+            } else {
+                reject(errors.UNKNOWN)
+            }
+        })
+    })
+}
+
 const refreshToken = (request) => {
     return new Promise((resolve, reject) => {
         const token = unpackToken(request)
@@ -195,5 +220,6 @@ const refreshToken = (request) => {
 module.exports = {
     login: login,
     authenticate: authenticate,
-    refreshToken: refreshToken
+    refreshToken: refreshToken,
+    getUser: getUser
 }

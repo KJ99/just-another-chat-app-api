@@ -113,7 +113,9 @@ const register = (data) => {
             return user.save()
         })
         .then(() => {
-            Mailer.sendVerificationEmail(user)
+            Mailer.sendVerificationEmail(user).catch(e => console.log('Email not sent'))
+            console.log(user._id)
+            console.log(user.activationToken)
             resolve(user)
         })
         .catch(e => {

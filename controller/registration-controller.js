@@ -2,6 +2,7 @@ const app = require('express')()
 const bodyParser = require('body-parser')
 const RegistrationService = require('../utility/registration-service')
 const defaultError = require('../errors').unknown
+const ErrorResolver = require('../utility/error-resolver')
 
 app.use(bodyParser.json());
 
@@ -11,24 +12,13 @@ app.post('/', (req, res) => {
     const contentType = 'application/json'
     RegistrationService.register(req.body)
     .then(user => {
-        console.log(user)
         status = 201
         body = {result: 'success'}
     })
     .catch(e => {
-        if(typeof e == 'object') {
-            status = e.code
-            body = {
-                code: e.internalCode,
-                message: e.message
-            }
-        } else {
-            status = 500
-            body = {
-                code: defaultError.internalCode,
-                message: defaultError.message
-            }
-        }
+        const responseData = ErrorResolver.resolveError(e)
+        status = responseData.status
+        body = responseData.body
     })
     .finally(() => {
         res.contentType(contentType)

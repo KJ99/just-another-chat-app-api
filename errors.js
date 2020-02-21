@@ -31,6 +31,8 @@ module.exports = {
     },
     user: {
         USER_NOT_FOUND: {code: 403, internalCode: 10030, message: 'user not found'},
+        CONNECTION_WITH_YOURSELF: {code: 409, internalCode: 10031, message: 'you cannot connect with yourself'},
+        ALREADY_CONNECTED: {code: 409, internalCode: 10032, message: 'already connected'},        
         UNKNOWN: unknownError
-    }
+    },
 }

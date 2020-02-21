@@ -8,16 +8,19 @@ const Chat = mongoose.Schema({
         }],
         required: true
     },
+
     admins: {
         type: [{type: mongoose.Types.ObjectId, ref: 'User'}],
         required: true,
         default: []
     },
+
     canAddUsers: {
         type: Boolean,
         required: true,
         default: false
     },
+
     userAddingApproval: {
         type: Boolean,
         required: true,
@@ -34,7 +37,18 @@ const Chat = mongoose.Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
+
+    privateChat: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
+
+    picture: { 
+        data: Buffer, 
+        mime: String 
+    },
 })
 
 module.exports = mongoose.model('Chat', Chat)

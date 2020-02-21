@@ -82,6 +82,30 @@ const User = new mongoose.Schema({
         type: [mongoose.Types.ObjectId],
         required: true,
         default: []
+    },
+
+    blockedUsers: {
+        type: [mongoose.Types.ObjectId],
+        required: true,
+        default: []
+    },
+
+    accountHidden: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
+    lastSeen: {
+        type: Number,
+        required: false,
+        default: null
+    },
+    
+    online: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 })
 

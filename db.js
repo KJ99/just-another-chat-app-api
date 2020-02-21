@@ -7,6 +7,7 @@ const connect = () => {
         reconnectTries: 10,
         reconnectInterval: 500, 
         connectTimeoutMS: 10000,
+        // useUnifiedTopology: true 
     };
     
     const {
@@ -17,7 +18,8 @@ const connect = () => {
         MONGO_DB
       } = process.env;
       
-      const url = `mongodb://${MONGO_USERNAME}:${encodeURIComponent(MONGO_PASSWORD)}@${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}?authSource=admin`;
+    //   const url = `mongodb://${MONGO_USERNAME}:${encodeURIComponent(MONGO_PASSWORD)}@${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}?authSource=admin&replicaSet=rs`;
+    const url = `mongodb://${MONGO_HOSTNAME}:${MONGO_PORT}/${MONGO_DB}?replicaSet=rs`
       
     return mongoose.connect(url, options)
 }

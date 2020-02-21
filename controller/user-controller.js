@@ -14,6 +14,51 @@ app.use((req, res, next) => {
     })
 })
 
+app.get('/', (req, res) => {
+    let status = 500
+    let body = {}
+    const contentType = 'application/json'
+    AuthService.getUser(req)
+    .then(user => {
+        status = 200
+        body = UserService.prepareCurrentUserData(user)
+    })
+    .catch(e => {
+        const responseData = ErrorResolver.resolveError(e)
+        status = responseData.status
+        body = responseData.body
+    })
+    .finally(() => {
+        res.contentType(contentType)
+        res.status(status)
+        res.end(JSON.stringify(body))
+    })
+})
+
+app.get('/:id', (req, res) => {
+    let status = 500
+    let body = {}
+    const contentType = 'application/json'
+    AuthService.getUser(req)
+    .then(user => {
+        return UserService.getBasicUserData(user, req.params.id)
+    })
+    .then(data => {
+        status = 200
+        body = data
+    })
+    .catch(e => {
+        const responseData = ErrorResolver.resolveError(e)
+        status = responseData.status
+        body = responseData.body
+    })
+    .finally(() => {
+        res.contentType(contentType)
+        res.status(status)
+        res.end(JSON.stringify(body))
+    })
+})
+
 app.get('/connection/new', (req, res) => {
     let status = 500
     let body = {}

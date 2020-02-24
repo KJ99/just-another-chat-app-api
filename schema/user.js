@@ -54,11 +54,32 @@ const User = new mongoose.Schema({
         default: false
     },
 
-    activationToken: {
+    verification: {
+        type: {
+            pin: {
+                type: String, 
+                required: false, 
+                default: null,
+                validate: {
+                    validator: (v) => {
+                      return v == null || (new RegExp('^[0-9]{6}$')).test(v)
+                    },
+                    message: props => `pin:invalid`
+                }
+            },
+            expires: {type: Number, required: false, default: null}
+        },
+        required: false,
+        default: {pin: null, expires: null}
+    },
+
+    verificationSecret: {
         type: String,
         required: false,
-        sparse: [true, 'token:must_be_unique']
+        sparse: true,
+        default: null
     },
+
     joinDate: {
         type: Date,
         default: new Date()

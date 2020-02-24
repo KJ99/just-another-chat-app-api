@@ -11,6 +11,8 @@ const errors = require('../errors').registration
 const bcrypt = require('bcryptjs')
 const mime = require('mime')
 
+const VERIFICATION_EXPIRE_TIME = 1 * 60 * 60 * 1000
+
 const findDataError = data => {
     let error = null
     if(!isFormComplete(data)) {
@@ -60,16 +62,23 @@ const findDuplicatedColumn = msg => {
     return msg.substring(msg.indexOf('index: ') + 'index: '.length, msg.search(new RegExp('_[0-9]* dup key: {')))
 }
 
-const generateActivationToken = (user) => {
-    const tokenString = Date.now().toString() + user._id + randomString.generate(16)
+const generateToken = (secret, postfixLength = 16) => {
+    const tokenString = Date.now().toString() + secret + randomString.generate(postfixLength)
     return crypto.createHmac('sha256', process.env.API_SECRET).update(tokenString).digest('hex')
 }
 
-const generateRefreshToken = user => {
-    const tokenString = Date.now().toString() + user._id + randomString.generate(64)
-    return md5(crypto.createHmac('sha256', process.env.API_SECRET).update(tokenString).digest('hex'))
+const generateActivationSecret = user => {
+    return generateToken(user._id, 32)
 }
 
+
+const generateRefreshToken = user => {
+    return generateToken(user._id, 64)
+}
+
+const generateActivationPin = () => {
+    return randomString.generate({length: 6, charset: 'numeric'})
+}
 
 const fetchDefaultPicture = () => {
     return new Promise((resolve, reject) => {
@@ -108,17 +117,16 @@ const register = (data) => {
         })
         .then(data => {
             user.picture = data
-            user.activationToken = generateActivationToken(user)
+            user.verificationSecret = generateActivationSecret(user)
+            user.verification = {
+                pin: generateActivationPin(),
+                expires: Date.now() + VERIFICATION_EXPIRE_TIME
+            }
             user.refreshToken = generateRefreshToken(user)
             return user.save()
         })
         .then(() => {
-            Mailer.sendVerificationEmail(user)
-            .then(() => console.log('email sent'))
-            .catch(e => {
-                console.log('Email not sent')
-                console.log(e)
-            })
+            Mailer.sendVerificationEmail(user).catch(e => {})
             resolve(user)
         })
         .catch(e => {

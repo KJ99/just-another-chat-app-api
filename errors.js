@@ -5,6 +5,7 @@ module.exports = {
     verification: {
         ALREADY_VERIFIED: {code: 409, internalCode: 10001, message: 'account already verified'},
         USER_NOT_FOUND: {code: 404, internalCode: 10002, message: 'user not found'},
+        PIN_EXPIRED: {code: 409, internalCode: 10003, message: 'pin expired'},
         UNKNOWN: unknownError
     },
     registration: {

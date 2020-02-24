@@ -10,18 +10,24 @@ const EMAIL_VERIFICATION_TEMPLATE = path.join(EMAIL_TEMPLATES, 'verification-ema
 
 const sendVerificationEmail = (user) => {
     return new Promise((resolve, reject) => {
+        console.log('sending email...')
         if(user.verified || !user.activationToken) {
             throw errors.ALREADY_VERIFIED
         }   
         
+        console.log('template...')
         readTemplate(EMAIL_VERIFICATION_TEMPLATE, {user: user})
         .then(body => {
+            console.log('sending')
             return sendHtmlEmail(user.email, 'Verify your email address', body)
         })
         .then(result => {
+            console.log('sent')
             resolve(result)
         })
         .catch(e => {
+            console.log('not sent')
+            console.log(e)
             reject(e)
         })
         
@@ -30,10 +36,7 @@ const sendVerificationEmail = (user) => {
 
 const createTransporter = () => {
     return nodemailer.createTransport({
-        host: process.env.MAIL_TRANSPORT_HOST,
-        port: process.env.MAIL_TRANSPORT_PORT,
-        secure: false,
-        requireTLS: true,
+        service: 'gmail',
         auth: {
             user: process.env.MAIL_TRANSPORT_USER,
             pass: process.env.MAIL_TRANSPORT_PASS

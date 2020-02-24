@@ -1,21 +1,13 @@
-FROM node:12.16.0-alpine3.11
+FROM node
 
-VOLUME [ "." ]
+WORKDIR /usr/src/app
 
-RUN mkdir -p /home/node/chat-app/node_modules && chown -R node:node /home/node/chat-app
-
-WORKDIR /home/node/chat-app
-
-COPY package*.json ./
-
-USER node
+COPY package.json .
 
 RUN npm install
 
-COPY --chown=node:node . .
+COPY . .
 
-EXPOSE 8080
+RUN npm install -g nodemon
 
-EXPOSE 3000
-
-CMD [ "node", "index.js" ]
+CMD ["nodemon", "index.js", "-L"]

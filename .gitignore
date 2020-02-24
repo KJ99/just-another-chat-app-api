@@ -1,4 +1,7 @@
-.rsa
+.keys
+mongo/mongo-rs0-1/data/*
+mongo/mongo-rs0-2/data/*
+mongo/mongo-rs0-3/data/*
 # Logs
 logs
 *.log

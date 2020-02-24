@@ -1,46 +1,46 @@
 version: '3'
+services: 
+    mongo-rs0-1:
+        image: "mongo"
+        build: ./mongo/mongo-rs0-1
+        ports: 
+            - "27017:27017"
+        depends_on: 
+            - "mongo-rs0-2"
+            - "mongo-rs0-3"
 
-services:
-  nodejs:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: nodejs
-    container_name: nodejs
-    restart: unless-stopped
-    env_file: .env
-    environment:
-      - MONGO_USERNAME=$MONGO_USERNAME
-      - MONGO_PASSWORD=$MONGO_PASSWORD
-      - MONGO_HOSTNAME=db
-      - MONGO_PORT=$MONGO_PORT
-      - MONGO_DB=$MONGO_DB 
-    ports:
-      - "8080:8080"
-      - "3000:3000"
-    volumes:
-      - .:/home/node/chat-app
-      - node_modules:/home/node/app/node_modules
-    networks:
-      - app-network
-    command: ./wait-for.sh db:27017 -- /home/node/chat-app/node_modules/.bin/nodemon index.js -L
-  db:
-    image: mongo:4.1.8-xenial
-    container_name: db
-    restart: unless-stopped
-    env_file: .env
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=$MONGO_USERNAME
-      - MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASSWORD
-    volumes:  
-      - dbdata:/data/db   
-    networks:
-      - app-network 
-       
-networks:
-  app-network:
-    driver: bridge
+    mongo-rs0-2:
+        image: "mongo"
+        command: --replSet rs0
+        ports: 
+            - "27018:27017"
 
-volumes:
-  dbdata:
-  node_modules: 
+    mongo-rs0-3:
+        image: "mongo"
+        command: --replSet rs0
+        ports: 
+            - "27019:27017"
+
+    setup-rs:
+        image: "setup-rs"
+        build: ./mongo/setup
+        depends_on: 
+            - "mongo-rs0-1"
+    
+    adminmongo:
+        image: "mrvautin/adminmongo"
+        ports: 
+            - "1234:1234"
+    
+    api:
+        image: "node"
+        build: .
+        ports: 
+            - "8080:8080"
+            - "3000:3000"
+        volumes: 
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        depends_on: 
+            - "setup-rs"
+            

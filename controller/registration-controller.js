@@ -10,10 +10,11 @@ app.post('/', (req, res) => {
     let status = 500
     let body = {}
     const contentType = 'application/json'
+    
     RegistrationService.register(req.body)
     .then(user => {
         status = 201
-        body = {result: 'success'}
+        body = {_uvs: user.verificationSecret}
     })
     .catch(e => {
         const responseData = ErrorResolver.resolveError(e)

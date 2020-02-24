@@ -1,25 +1,30 @@
 const app = require('express')()
 const defaultError = require('../errors').unknown
-const ActivationService = require('../utility/activation-service')
+const ActivationService = require('../utility/verification-service')
 const ErrorResolver = require('../utility/error-resolver')
+const bodyParser = require('body-parser')
 
-app.set('view engine', 'ejs');
+app.use(bodyParser.json())
 
-app.get('/:user/:token', (req, res) => {
+app.post('/', (req, res) => {
+    let status = 500
+    let body = {}
+    const contentType = 'application/json'
 
-    let success = false
-    let error = null
-
-    ActivationService.activate(req.params.user, req.params.token)
+    ActivationService.activate(req.body)
     .then(() => {
-        success = true
+        status = 200
+        body = { status: 'success' }
     })
     .catch(e => {
-        success = false
-        error = e
+        const responseData = ErrorResolver.resolveError(e)
+        status = responseData.status
+        body = responseData.body
     })
     .finally(() => {
-        res.render('account-activated', {success: success, error: error})
+        res.contentType(contentType)
+        res.status(status)
+        res.end(JSON.stringify(body))
     })    
 })
 

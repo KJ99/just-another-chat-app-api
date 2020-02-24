@@ -10,24 +10,18 @@ const EMAIL_VERIFICATION_TEMPLATE = path.join(EMAIL_TEMPLATES, 'verification-ema
 
 const sendVerificationEmail = (user) => {
     return new Promise((resolve, reject) => {
-        console.log('sending email...')
-        if(user.verified || !user.activationToken) {
+        if(user.verified || !user.verificationSecret || !user.verification || !user.verification.pin) {
             throw errors.ALREADY_VERIFIED
         }   
         
-        console.log('template...')
         readTemplate(EMAIL_VERIFICATION_TEMPLATE, {user: user})
         .then(body => {
-            console.log('sending')
-            return sendHtmlEmail(user.email, 'Verify your email address', body)
+            return sendHtmlEmail(user.email, 'Activate your account', body)
         })
         .then(result => {
-            console.log('sent')
             resolve(result)
         })
         .catch(e => {
-            console.log('not sent')
-            console.log(e)
             reject(e)
         })
         
@@ -56,8 +50,10 @@ const sendHtmlEmail = (receiver, subject, body) => {
 
 const readTemplate = (path, data) => {
     return new Promise((resolve, reject) => {
+        console.log('reading template... ')
         readFile(path)
         .then(content => {
+            console.log('rendering email...')
             return ejs.render(content.toString(), data)
         })
         .then(result => resolve(result))
@@ -67,7 +63,10 @@ const readTemplate = (path, data) => {
 
 const readFile = path => {
     return new Promise((resolve, reject) => {
+        console.log('reading file ', path)
         fs.readFile(path, (err, data) => {
+            console.log('fileerr', err)
+            console.log(data)
             if(err) {
                 reject(err)
             } else {

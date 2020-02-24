@@ -17,18 +17,12 @@ app.use('/verify', VerificationController)
 app.use('/auth', AuthController)
 app.use('/user', UserController)
 
-app.get('/dupa/:user', (req, res) => {
-    require('./schema/user').findOne({username: req.params.user})
+app.get('/dupa', (req, res) => {
+    require('./schema/user').find({})
     .then(data => {
         res.status(200);
         res.contentType('json')
-        res.end(JSON.stringify({
-            id: data._id,
-            username: data.username,
-            activationToken: data.activationToken,
-            connectionToken: data.connectionToken,
-            friends: data.friends
-        }))
+        res.end(JSON.stringify(data))
     })
     .catch(e => {
         res.status(500);

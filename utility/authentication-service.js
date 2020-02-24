@@ -41,7 +41,8 @@ const generateToken = (user) => {
                         token_type: TOKEN_FORMAT,
                         token: data,
                         expires: tokenExpiration * 1000,
-                        expirationDate: tokenExpirationDate
+                        expirationDate: tokenExpirationDate,
+                        refresh: user.refreshToken
                     })
                 }
             })

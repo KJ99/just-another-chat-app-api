@@ -67,13 +67,41 @@ const User = new mongoose.Schema({
                     message: props => `pin:invalid`
                 }
             },
-            expires: {type: Number, required: false, default: null}
+            expires: {type: Number, required: false, default: null},
+            tries: {type: Number, required: true, default: 0}
         },
         required: false,
         default: {pin: null, expires: null}
     },
 
     verificationSecret: {
+        type: String,
+        required: false,
+        sparse: true,
+        default: null
+    },
+
+    passwordReset: {
+        type: {
+            pin: {
+                type: String, 
+                required: false, 
+                default: null,
+                validate: {
+                    validator: (v) => {
+                      return v == null || (new RegExp('^[0-9]{6}$')).test(v)
+                    },
+                    message: props => `pin:invalid`
+                }
+            },
+            expires: {type: Number, required: false, default: null},
+            tries: {type: Number, required: true, default: 0}
+        },
+        required: false,
+        default: {pin: null, expires: null}
+    },
+
+    passwordResetSecret: {
         type: String,
         required: false,
         sparse: true,
@@ -117,6 +145,36 @@ const User = new mongoose.Schema({
         default: false
     },
 
+    accountPublic: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
+    darkMode: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
+    autoAccept: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
+    autoDownloadImages: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
+    autoDownloadFiles: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
     lastSeen: {
         type: Number,
         required: false,
@@ -127,6 +185,24 @@ const User = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+
+    banned: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+
+    banReason: {
+        type: String,
+        required: false,
+        default: null
+    },
+
+    banExpiration: {
+        type: Number,
+        required: false,
+        default: null
     }
 })
 

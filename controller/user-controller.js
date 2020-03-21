@@ -2,6 +2,12 @@ const app = require('express')()
 const AuthService = require('../utility/authentication-service')
 const UserService = require('../utility/user-service')
 const ErrorResolver = require('../utility/error-resolver')
+const bodyParser = require('body-parser')
+// const multer = require('multer')
+// const path = require('path')
+// const upload = multer({dest: path.join(__dirname, '..', 'assets', 'uploads')})
+
+app.use(bodyParser.json())
 
 app.use((req, res, next) => {
     AuthService.authenticate(req)
@@ -35,17 +41,21 @@ app.get('/', (req, res) => {
     })
 })
 
-app.get('/:id', (req, res) => {
+app.get('/settings', (req, res) => {
     let status = 500
     let body = {}
     const contentType = 'application/json'
     AuthService.getUser(req)
     .then(user => {
-        return UserService.getBasicUserData(user, req.params.id)
-    })
-    .then(data => {
         status = 200
-        body = data
+        body = {
+            darkMode: user.darkMode,
+            hiddenAccount: user.accountHidden,
+            publicAccount: user.accountPublic,
+            acceptAutomatically: user.autoAccept,
+            downloadImagesAutomatically: user.autoDownloadImages,
+            downloadFilesAutomatically: user.autoDownloadFiles
+        }
     })
     .catch(e => {
         const responseData = ErrorResolver.resolveError(e)
@@ -59,41 +69,17 @@ app.get('/:id', (req, res) => {
     })
 })
 
-app.get('/connection/new', (req, res) => {
+app.post('/settings/update', (req, res) => {
     let status = 500
     let body = {}
     const contentType = 'application/json'
     AuthService.getUser(req)
     .then(user => {
-        return UserService.generateConnectionLink(user)
-    })
-    .then(link => {
-        status = 200
-        body = {link: link}
-    })
-    .catch(e => {
-        const responseData = ErrorResolver.resolveError(e)
-        status = responseData.status
-        body = responseData.body
-    })
-    .finally(() => {
-        res.contentType(contentType)
-        res.status(status)
-        res.end(JSON.stringify(body))
-    })
-})
-
-app.get('/connection/cancel', (req, res) => {
-    let status = 500
-    let body = {}
-    const contentType = 'application/json'
-    AuthService.getUser(req)
-    .then(user => {
-        return UserService.removeConnectionLink(user)
+        return UserService.updateUserSettings(user, req.body)
     })
     .then(() => {
         status = 200
-        body = {status: 'success'}
+        body = { message: 'success' }
     })
     .catch(e => {
         const responseData = ErrorResolver.resolveError(e)
@@ -107,28 +93,11 @@ app.get('/connection/cancel', (req, res) => {
     })
 })
 
-app.get('/connect/:token', (req, res) => {
-    let status = 500
-    let body = {}
-    const contentType = 'application/json'
-    AuthService.getUser(req)
-    .then(user => {
-        return UserService.connect(user, req.params.token)
-    })
-    .then(() => {
-        status = 200
-        body = {status: 'success'}
-    })
-    .catch(e => {
-        const responseData = ErrorResolver.resolveError(e)
-        status = responseData.status
-        body = responseData.body
-    })
-    .finally(() => {
-        res.contentType(contentType)
-        res.status(status)
-        res.end(JSON.stringify(body))
-    })
-})
+// app.post('/update', upload.single('image'), (req, res) => {
+//     console.log(req.file)
+//     console.log(req.files)
+//     console.log(req.body)
+//     res.send(200)
+// })
 
 module.exports = app

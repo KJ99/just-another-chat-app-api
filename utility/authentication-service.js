@@ -14,6 +14,7 @@ const TOKEN_FORMAT = 'Bearer'
 
 const KEYS_PATH = path.join(__dirname, '..', '.keys')
 
+
 const generateDeviceHash = deviceInfo => {
     return typeof deviceInfo == 'object' 
         ? crypto.createHmac('sha256', process.env.API_SECRET).update(JSON.stringify(deviceInfo)).digest('hex')
@@ -38,7 +39,7 @@ const generateToken = (user) => {
                     reject(errors.UNKNOWN)
                 } else {
                     resolve({
-                        token_type: TOKEN_FORMAT,
+                        tokenType: TOKEN_FORMAT,
                         token: data,
                         expires: tokenExpiration * 1000,
                         expirationDate: tokenExpirationDate,
@@ -51,8 +52,35 @@ const generateToken = (user) => {
     })
 }
 
+const createResponse = (user, tokenData) => {
+    let token = Object.assign({}, tokenData)
+    let loggedIn = true
+    if(user.banned || !user.verified) {
+        loggedIn = false
+        token.tokenType = null
+        token.token = null
+        token.expires = null,
+        token.expirationDate = null
+        token.refresh = null
+    }
+    return {
+        logged: loggedIn,
+        accountBanned: user.banned,
+        accountVerified: user.verified,
+        _uvs: !user.verified ? user.verificationSecret : null,
+        email: user.email,
+        ban: {
+            reason: user.banReason,
+            expires: user.banExpiration,
+            pernament: !user.active && user.banExpiration == null
+        },
+        token: token
+    }
+}
+
 const unpackToken = request => {
     const authString = request.headers['authorization']
+    console.log(authString)
     return typeof authString == 'string' && authString.split(' ').length == 2 && authString.split(' ')[0] === TOKEN_FORMAT 
         ? authString.split(' ')[1]
         : null
@@ -96,10 +124,6 @@ const login = (request) => {
         .then(result => {
             if(!result) {
                 throw errors.BAD_CREDENTIALS
-            } else if(!user.active) {
-                throw errors.ACCOUNT_INACTIVE
-            } else if(!user.verified) {
-                throw errors.ACCOUNT_NOT_VERIFIED
             } 
             
             return authorizeDevice(user, device)
@@ -108,7 +132,7 @@ const login = (request) => {
             return generateToken(user)
         })
         .then(token => {
-            resolve(token)
+            resolve(createResponse(user, token))
         })
         .catch(e => {
             if(typeof e == 'object' && typeof e.code == 'number' && typeof e.internalCode == 'number') {
@@ -218,9 +242,13 @@ const refreshToken = (request) => {
     })
 }
 
+
+
+
+
 module.exports = {
     login: login,
     authenticate: authenticate,
     refreshToken: refreshToken,
-    getUser: getUser
+    getUser: getUser,
 }

@@ -32,6 +32,21 @@ app.get('/dupa', (req, res) => {
 
 })
 
+app.get('/dupa/:username', (req, res) => {
+    require('./schema/user').findOne({username: req.params.username})
+    .then(data => {
+        res.status(200);
+        res.contentType('json')
+        res.end(JSON.stringify(data))
+    })
+    .catch(e => {
+        res.status(500);
+        res.contentType('json')
+        res.end({})
+    })
+
+})
+
 const server = http.createServer((req, res) => {})
 const webSocketServer = new WebSocket({ httpServer: server })
 

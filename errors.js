@@ -6,6 +6,7 @@ module.exports = {
         ALREADY_VERIFIED: {code: 409, internalCode: 10001, message: 'account already verified'},
         USER_NOT_FOUND: {code: 404, internalCode: 10002, message: 'user not found'},
         PIN_EXPIRED: {code: 409, internalCode: 10003, message: 'pin expired'},
+        PIN_INVALID: {code: 409, internalCode: 10004, message: 'invalid pin'},
         UNKNOWN: unknownError
     },
     registration: {
@@ -25,15 +26,23 @@ module.exports = {
         DEVICE_UNAUTHORIZED: {code: 403, internalCode: 10023, message: 'device not authorized'},
         USER_NOT_FOUND: {code: 403, internalCode: 10024, message: 'user not found'},
         BAD_CREDENTIALS: {code: 403, internalCode: 10025, message: 'invalid username or password'},
-        CREDENTIALS_NOT_FOUND: {code: 401, internalCode: 10025, message: 'credentials not found'},
-        ACCOUNT_INACTIVE: {code: 403, internalCode: 10026, message: 'account is not active'},
-        ACCOUNT_NOT_VERIFIED: {code: 403, internalCode: 10027, message: 'account is not verified'},
+        CREDENTIALS_NOT_FOUND: {code: 401, internalCode: 10026, message: 'credentials not found'},
+        ACCOUNT_INACTIVE: {code: 403, internalCode: 10027, message: 'account is not active'},
+        ACCOUNT_NOT_VERIFIED: {code: 403, internalCode: 10028, message: 'account is not verified'},
         UNKNOWN: unknownError
     },
     user: {
         USER_NOT_FOUND: {code: 403, internalCode: 10030, message: 'user not found'},
         CONNECTION_WITH_YOURSELF: {code: 409, internalCode: 10031, message: 'you cannot connect with yourself'},
-        ALREADY_CONNECTED: {code: 409, internalCode: 10032, message: 'already connected'},        
+        ALREADY_CONNECTED: {code: 409, internalCode: 10032, message: 'already connected'},  
+        ACCOUNT_NOT_VERIFIED: {code: 403, internalCode: 10033, message: 'account is not verified'},      
+        PASSWORD_NOT_FOUND: {code: 404, internalCode: 10034, message: 'Password not found'},      
+        PASSWORD_TOO_SHORT: {code: 409, internalCode: 10035, message: 'Password is too short'},     
+        PIN_EXPIRED: {code: 409, internalCode: 10037, message: 'Pin expired'},    
+        INVALID_PIN: {code: 409, internalCode: 10038, message: 'Pin is invalid'}, 
+        PASSWORDS_NOT_THE_SAME: {code: 409, internalCode: 10039, message: 'Passwords are not the same'},
+        ACCOUNT_NOT_ACTIVE: {code: 403, internalCode: 10040, message: 'account is not active'},   
+        INVALID_FORM_DATA: {code: 422, internalCode: 10041, message: 'inavlid data provided in request'},
         UNKNOWN: unknownError
     },
 }

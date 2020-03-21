@@ -28,4 +28,26 @@ app.post('/', (req, res) => {
     })    
 })
 
+app.post('/resend', (req, res) => {
+    let status = 500
+    let body = {}
+    const contentType = 'application/json'
+
+    ActivationService.resendEmail(req.body)
+    .then(data => {
+        status = 200
+        body = data
+    })
+    .catch(e => {
+        const responseData = ErrorResolver.resolveError(e)
+        status = responseData.status
+        body = responseData.body
+    })
+    .finally(() => {
+        res.contentType(contentType)
+        res.status(status)
+        res.end(JSON.stringify(body))
+    })   
+})
+
 module.exports = app

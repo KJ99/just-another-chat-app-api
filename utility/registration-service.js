@@ -1,4 +1,5 @@
 const User = require('../schema/user')
+const UserService = require('./user-service')
 const Mailer = require('./mailer-service')
 const crypto = require('crypto')
 const base64 = require('base-64')
@@ -10,8 +11,6 @@ const path = require('path')
 const errors = require('../errors').registration
 const bcrypt = require('bcryptjs')
 const mime = require('mime')
-
-const VERIFICATION_EXPIRE_TIME = 1 * 60 * 60 * 1000
 
 const findDataError = data => {
     let error = null
@@ -67,18 +66,11 @@ const generateToken = (secret, postfixLength = 16) => {
     return crypto.createHmac('sha256', process.env.API_SECRET).update(tokenString).digest('hex')
 }
 
-const generateActivationSecret = user => {
-    return generateToken(user._id, 32)
-}
-
 
 const generateRefreshToken = user => {
     return generateToken(user._id, 64)
 }
 
-const generateActivationPin = () => {
-    return randomString.generate({length: 6, charset: 'numeric'})
-}
 
 const fetchDefaultPicture = () => {
     return new Promise((resolve, reject) => {
@@ -116,12 +108,10 @@ const register = (data) => {
             return fetchDefaultPicture()
         })
         .then(data => {
+            const verification = UserService.generateAccountVerification(user)
             user.picture = data
-            user.verificationSecret = generateActivationSecret(user)
-            user.verification = {
-                pin: generateActivationPin(),
-                expires: Date.now() + VERIFICATION_EXPIRE_TIME
-            }
+            user.verificationSecret = verification.secret
+            user.verification = verification.pinData
             user.refreshToken = generateRefreshToken(user)
             return user.save()
         })
